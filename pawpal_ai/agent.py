@@ -17,8 +17,8 @@ from datetime import date, datetime
 from pathlib import Path
 
 from pawpal_ai.guardrails import DOSING_MESSAGE, check_input, redact_dosing, validate_task
-from pawpal_ai.llm import LLMClient, OfflineClient
-from pawpal_ai.retrieval import KnowledgeBase, MultiSourceRetriever
+from pawpal_ai.llm import BROAD_REQUEST, LLMClient, OfflineClient
+from pawpal_ai.retrieval import KnowledgeBase, MultiSourceRetriever, RetrievedChunk
 from pawpal_system import Owner, Pet, ScheduledTask, Scheduler, Task, to_minutes
 
 logger = logging.getLogger("pawpal_ai")
@@ -65,6 +65,25 @@ def age_terms(pet: Pet | None) -> str:
     if pet.species == "cat" and pet.age >= 10:
         return "senior older"
     return ""
+
+
+ROUTINE_FACETS = {
+    "dog": ["dog feeding meals water", "dog exercise walks", "dog enrichment training grooming"],
+    "cat": ["cat feeding meals water", "cat litter box", "cat play enrichment grooming"],
+    "other": ["rabbit diet hay feeding", "rabbit exercise free-roam", "cage habitat cleaning"],
+}
+
+
+def life_stage_ok(chunk_id: str, pet: Pet | None) -> bool:
+    """Drop guide sections for the wrong life stage (e.g. senior advice for a 4-year-old cat)."""
+    if pet is None or pet.age <= 0:
+        return True
+    senior = bool(age_terms(pet))
+    if "senior" in chunk_id and not senior:
+        return False
+    if ("puppies" in chunk_id or "kitten" in chunk_id) and pet.age >= 1:
+        return False
+    return True
 
 
 class CareAgent:
@@ -147,11 +166,31 @@ class CareAgent:
         # 3. Retrieve (RAG over knowledge base + pet profile)
         extra = [age_terms(pet), pet.breed if pet else ""] if interpretation["intent"] != "question" else []
         query = " ".join(filter(None, [check.cleaned, species or "", *extra]))
+        hits: list[RetrievedChunk] = []
         if self.use_retrieval:
             retriever = MultiSourceRetriever(self.kb, self.owner)
-            hits = retriever.retrieve(query, pet.name if pet else None, species, k=4)
-        else:
-            hits = []
+            hits = retriever.retrieve(query, pet.name if pet else None, species, k=6)
+            broad = interpretation["intent"] in {"plan", "both"} and bool(BROAD_REQUEST.search(check.cleaned))
+            if broad and pet is not None:
+                # Planning step: a broad "routine" request is decomposed into one sub-query per care facet so the
+                # plan covers feeding, exercise and hygiene instead of only the single best-matching section.
+                facets = ROUTINE_FACETS.get(pet.species, ROUTINE_FACETS["other"])
+                if age_terms(pet):
+                    facets = [f"senior {pet.species} care"] + facets
+                self._log("plan", f"broad request decomposed into {len(facets)} sub-queries", facets)
+                facet_hits = [h for facet in facets for h in self.kb.search(facet, species=species, k=2)[:1]]
+                seen, merged = set(), []
+                for hit in [h for h in hits if h.chunk.source == "pet_profile"] + facet_hits + hits:
+                    if hit.chunk.chunk_id not in seen:
+                        seen.add(hit.chunk.chunk_id)
+                        merged.append(hit)
+                hits = merged
+            dropped = [h.chunk.chunk_id for h in hits if not life_stage_ok(h.chunk.chunk_id, pet)]
+            hits = [h for h in hits if life_stage_ok(h.chunk.chunk_id, pet)]
+            if dropped:
+                self._log("retrieve", f"life-stage filter removed {dropped}")
+            profile_hits = [h for h in hits if h.chunk.source == "pet_profile"]
+            hits = profile_hits + [h for h in hits if h.chunk.source != "pet_profile"][:4]
         context = [self._context_dict(hit) for hit in hits]
         knowledge = [item for item in context if item["source"] == "knowledge"]
         profile = next((item["text"] for item in context if item["source"] == "pet_profile"), "")
@@ -170,7 +209,7 @@ class CareAgent:
         minutes = interpretation.get("available_minutes") or self.owner.available_minutes
         plan, conflicts, skipped = self._schedule(pet, tasks, minutes) if tasks else ([], [], [])
         for attempt in range(1, self.max_repairs + 1):
-            fixed = self._repair_conflicts(tasks, plan)
+            fixed = self._repair_conflicts(tasks, plan) or self._repair_budget(tasks, plan, minutes)
             if not fixed:
                 break
             repairs.extend(fixed)
@@ -236,6 +275,10 @@ class CareAgent:
             repairs.extend(issues)
             if task is None:
                 continue
+            if task["category"] == "meds" and task["source"] != "user":
+                repairs.append(f"dropped '{task['title']}': medication schedules must come from the owner/vet, "
+                               "not the AI")
+                continue
             if task["source"] not in allowed_sources:
                 repairs.append(f"dropped '{task['title']}': not grounded in a retrieved source")
                 continue
@@ -287,6 +330,16 @@ class CareAgent:
                              f"'{(second if loser is first else first).task.title}')")
                 task["time"] = None
         return fixes
+
+    def _repair_budget(self, tasks: list[dict], plan: list[ScheduledTask], minutes: int) -> list[str]:
+        """Self-correction: if an owner-requested task didn't fit the time budget, shorten it to fit (min 10 min)."""
+        planned = {slot.task.title for slot in plan}
+        left = minutes - sum(slot.task.duration_minutes for slot in plan)
+        for task in tasks:
+            if task["source"] == "user" and task["title"] not in planned and 10 <= left < task["minutes"]:
+                old_minutes, task["minutes"] = task["minutes"], left
+                return [f"shortened '{task['title']}' from {old_minutes} to {left} min to fit your time budget"]
+        return []
 
     def _enforce_style(self, answer: str, knowledge: list[dict]) -> str:
         """Specialized PawPal style: cited, short, structured."""

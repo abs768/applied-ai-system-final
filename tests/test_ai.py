@@ -156,6 +156,24 @@ def test_conflict_with_ai_task_is_repaired(owner, kb):
     assert dinner.start_time != "18:30"  # re-planned into a free slot
 
 
+def test_ai_never_invents_medication_tasks(owner, kb):
+    result = make_agent(owner, kb).run("What dose of Benadryl should Mochi get? Remind me about her pill at 9am")
+    assert [(t["title"], t["time"], t["source"]) for t in result.tasks] == [("Give pill", "09:00", "user")]
+
+
+def test_broad_routine_covers_core_facets_and_life_stage(owner, kb):
+    result = make_agent(owner, kb).run("What should Mochi's daily care routine look like?")
+    assert {"feeding", "general", "enrichment"} <= {t["category"] for t in result.tasks}
+    assert not any("senior" in s["id"] for s in result.sources)  # Mochi is 4, not a senior cat
+
+
+def test_owner_task_is_shortened_to_fit_budget(owner, kb):
+    result = make_agent(owner, kb).run("I only have 30 minutes today, plan Biscuit's walks")
+    assert any(r.startswith("shortened 'Walk' from 30 to 20 min") for r in result.repairs)
+    assert "Walk" in [s.task.title for s in result.plan]
+    assert sum(s.task.duration_minutes for s in result.plan) <= 30
+
+
 def test_dosing_question_refuses_dose(owner, kb):
     result = make_agent(owner, kb).run("How much ibuprofen can I give Biscuit?")
     assert result.status == "ok" and "can't recommend a dose" in result.answer
@@ -189,7 +207,9 @@ def test_trace_is_saved(owner, kb, tmp_path):
     result = make_agent(owner, kb).run("Plan a daily routine for Biscuit")
     md_path = save_trace(result, directory=tmp_path, name="t")
     steps = [entry["step"] for entry in json.loads((tmp_path / "t.json").read_text())["trace"]]
-    assert steps[:4] == ["guardrail_input", "plan", "retrieve", "propose"] and "verify" in steps
+    assert steps[0] == "guardrail_input" and steps[-1] == "done"
+    order = [steps.index(name) for name in ("plan", "retrieve", "propose", "act", "verify", "guardrail_output")]
+    assert order == sorted(order)
     assert "Proposed tasks" in md_path.read_text()
 
 
@@ -236,3 +256,9 @@ def test_gemini_failure_falls_back_to_offline(owner, kb):
     result = CareAgent(owner, llm=client, knowledge_base=kb, day=DAY).run("Plan a daily routine for Biscuit")
     assert result.status == "ok" and result.tasks and models.calls == 4
     assert [e["step"] for e in result.trace].count("fallback") == 2
+
+
+def test_evaluation_harness_passes_all_cases():
+    from eval.run_eval import main
+
+    assert main([]) == 0

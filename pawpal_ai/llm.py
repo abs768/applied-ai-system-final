@@ -25,7 +25,9 @@ from pawpal_ai.retrieval import tokenize
 logger = logging.getLogger("pawpal_ai")
 
 DEFAULT_GEMINI_MODEL = "gemini-2.5-flash"
-BROAD_REQUEST = re.compile(r"\b(routine|daily|day|schedule|plan|everything|care|look like|organi[sz]e|week)\b", re.I)
+BROAD_REQUEST = re.compile(
+    r"\b(routine|everything|day look like|whole day|full day|daily care|care plan|schedule for|organi[sz]e)\b", re.I
+)
 QUESTION_START = re.compile(r"^\s*(how|what|when|why|should|can|could|is|are|do|does|which|who)\b", re.I)
 PLAN_WORDS = re.compile(r"\b(plan|schedule|routine|add|remind|reminder|set up|organi[sz]e|book|put)\b", re.I)
 
@@ -159,7 +161,7 @@ class OfflineClient:
                 else "daily"
             )
             priority = (
-                "high" if category in {"meds", "feeding"} or re.search(r"\b(must|important|never miss|critical)\b", clause_l)
+                "high" if category in {"meds", "feeding", "walk"} or re.search(r"\b(must|important|never miss|critical)\b", clause_l)
                 else "medium"
             )
             for index, time in enumerate(times or [None]):
@@ -194,7 +196,7 @@ class OfflineClient:
                     continue
                 for hint in item["hints"]:
                     hint_tokens = set(tokenize(f"{hint.title} {hint.category}", expand=True))
-                    if not (broad or rank == 0 or hint_tokens & query_tokens):
+                    if not (broad or hint_tokens & query_tokens):
                         continue
                     covered = any(
                         user["category"] == hint.category
