@@ -118,11 +118,11 @@ def main(argv: list[str] | None = None) -> int:
     agent = CareAgent(owner, llm=make_client(args.backend), style=args.style, day=today,
                       use_retrieval=not args.no_rag)
 
-    for request in (DEMO_REQUESTS if args.demo else [args.request]):
+    for number, request in enumerate(DEMO_REQUESTS if args.demo else [args.request], start=1):
         result = agent.run(request)
         print_result(result)
         if args.save_trace:
-            path = save_trace(result)
+            path = save_trace(result, name=f"demo-{number}" if args.demo else None)
             print(f"\nTrace saved to {path.relative_to(Path(__file__).resolve().parent)}")
         if args.approve and result.status == "ok" and result.tasks:
             added = apply_tasks(owner, result, day=today)
