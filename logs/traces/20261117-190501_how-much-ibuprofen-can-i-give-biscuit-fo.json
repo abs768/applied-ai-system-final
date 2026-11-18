@@ -1,0 +1,124 @@
+{
+  "status": "ok",
+  "answer": "I can't recommend a dose or a medication. Doses depend on your pet's weight, health and the exact product, so please ask your veterinarian. I can still schedule the reminder so the dose your vet prescribed is never missed.\nHere's what PawPal's care guides say for Biscuit:\n- Never give human medications such as ibuprofen, acetaminophen (paracetamol), or naproxen to pets; they can be toxic, and acetaminophen is especially dangerous to cats. [1]\nAsk me to plan it if you'd like tasks added.",
+  "pet_name": "Biscuit",
+  "tasks": [],
+  "plan": [],
+  "conflicts": [],
+  "skipped": [],
+  "warnings": [
+    "Dosing question detected: no dose given; owner told to ask a vet."
+  ],
+  "repairs": [],
+  "sources": [
+    {
+      "id": "medication_safety#dosing-questions",
+      "title": "Medication Scheduling and Safety - Dosing questions",
+      "score": 0.209
+    },
+    {
+      "id": "dog_care#feeding",
+      "title": "Dog Daily Care Guide - Feeding",
+      "score": 0.1316
+    },
+    {
+      "id": "dog_care#hot-weather",
+      "title": "Dog Daily Care Guide - Hot weather",
+      "score": 0.1151
+    },
+    {
+      "id": "dog_care#enrichment-and-training",
+      "title": "Dog Daily Care Guide - Enrichment and training",
+      "score": 0.1104
+    }
+  ],
+  "confidence": 0.65,
+  "confidence_label": "medium",
+  "needs_review": false,
+  "backend": "offline",
+  "style": "pawpal",
+  "message": "How much ibuprofen can I give Biscuit for his sore leg?",
+  "trace": [
+    {
+      "n": 1,
+      "step": "guardrail_input",
+      "detail": "status=ok, flags=['dosing_request']",
+      "ms": 0.0
+    },
+    {
+      "n": 2,
+      "step": "plan",
+      "detail": "intent=question, pet=Biscuit, explicit tasks=0",
+      "ms": 0.2,
+      "data": {
+        "intent": "question",
+        "pet_name": "Biscuit",
+        "species": null,
+        "available_minutes": null,
+        "user_tasks": []
+      }
+    },
+    {
+      "n": 3,
+      "step": "retrieve",
+      "detail": "query='How much ibuprofen can I give Biscuit for his sore leg? dog' -> 4 guide section(s), profile=yes",
+      "ms": 0.4,
+      "data": [
+        {
+          "id": "profile#biscuit",
+          "score": 1.0
+        },
+        {
+          "id": "medication_safety#dosing-questions",
+          "score": 0.209
+        },
+        {
+          "id": "dog_care#feeding",
+          "score": 0.1316
+        },
+        {
+          "id": "dog_care#hot-weather",
+          "score": 0.1151
+        },
+        {
+          "id": "dog_care#enrichment-and-training",
+          "score": 0.1104
+        }
+      ]
+    },
+    {
+      "n": 4,
+      "step": "propose",
+      "detail": "0 task(s) proposed, model confidence=0.61",
+      "ms": 0.4,
+      "data": {
+        "answer": "Here's what PawPal's care guides say for Biscuit:\n- Never give human medications such as ibuprofen, acetaminophen (paracetamol), or naproxen to pets; they can be toxic, and acetaminophen is especially dangerous to cats. [1]\nAsk me to plan it if you'd like tasks added.",
+        "tasks": []
+      }
+    },
+    {
+      "n": 5,
+      "step": "verify",
+      "detail": "0 valid task(s), 0 repair(s), 0 conflict(s), 0 skipped",
+      "ms": 0.5,
+      "data": {
+        "repairs": [],
+        "warnings": [
+          "Dosing question detected: no dose given; owner told to ask a vet."
+        ]
+      }
+    },
+    {
+      "n": 6,
+      "step": "guardrail_output",
+      "detail": "dose redacted=False, words=83",
+      "ms": 1.0
+    },
+    {
+      "n": 7,
+      "step": "done",
+      "detail": "status=ok, confidence=0.65 (medium)",
+      "ms": 1.1
+    }
+  ]
+}

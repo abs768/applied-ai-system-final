@@ -1,0 +1,53 @@
+{
+  "status": "emergency",
+  "answer": "This sounds like it could be an emergency. Please contact your veterinarian or an emergency animal hospital right now. In the US you can also call the ASPCA Animal Poison Control Center (888-426-4435) or Pet Poison Helpline (855-764-7661). PawPal+ does not diagnose or treat, so it has paused normal planning.",
+  "pet_name": null,
+  "tasks": [],
+  "plan": [],
+  "conflicts": [],
+  "skipped": [],
+  "warnings": [],
+  "repairs": [],
+  "sources": [
+    {
+      "id": "emergencies_and_toxins#common-toxic-foods",
+      "title": "Emergencies and Toxic Foods - Common toxic foods",
+      "score": 0.2742
+    },
+    {
+      "id": "emergencies_and_toxins#what-pawpal-does-in-an-emergency",
+      "title": "Emergencies and Toxic Foods - What PawPal+ does in an emergency",
+      "score": 0.2724
+    }
+  ],
+  "confidence": 0.0,
+  "confidence_label": "low",
+  "needs_review": true,
+  "backend": "offline",
+  "style": "pawpal",
+  "message": "My dog ate chocolate an hour ago, what do I do?",
+  "trace": [
+    {
+      "n": 1,
+      "step": "guardrail_input",
+      "detail": "status=emergency, flags=['emergency']",
+      "ms": 0.0
+    },
+    {
+      "n": 2,
+      "step": "retrieve",
+      "detail": "emergency guide retrieved",
+      "ms": 0.1,
+      "data": [
+        "emergencies_and_toxins#common-toxic-foods",
+        "emergencies_and_toxins#what-pawpal-does-in-an-emergency"
+      ]
+    },
+    {
+      "n": 3,
+      "step": "done",
+      "detail": "status=emergency, confidence=0.00 (low)",
+      "ms": 0.2
+    }
+  ]
+}

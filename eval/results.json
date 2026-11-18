@@ -55,13 +55,13 @@
           "source": "dog_care#feeding"
         },
         {
-          "title": "Morning walk",
-          "minutes": 30,
-          "priority": "high",
-          "category": "walk",
-          "time": "07:30",
+          "title": "Puzzle feeder or sniff game",
+          "minutes": 15,
+          "priority": "medium",
+          "category": "enrichment",
+          "time": null,
           "frequency": "daily",
-          "source": "dog_care#exercise-and-walks"
+          "source": "dog_care#enrichment-and-training"
         }
       ],
       "fails": []
@@ -334,13 +334,13 @@
           "source": "dog_care#feeding"
         },
         {
-          "title": "Morning walk",
-          "minutes": 30,
-          "priority": "high",
-          "category": "walk",
-          "time": "07:30",
+          "title": "Puzzle feeder or sniff game",
+          "minutes": 15,
+          "priority": "medium",
+          "category": "enrichment",
+          "time": null,
           "frequency": "daily",
-          "source": "dog_care#exercise-and-walks"
+          "source": "dog_care#enrichment-and-training"
         }
       ],
       "fails": []

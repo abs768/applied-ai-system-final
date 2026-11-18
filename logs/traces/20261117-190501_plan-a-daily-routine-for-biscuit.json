@@ -1,0 +1,291 @@
+{
+  "status": "ok",
+  "answer": "Here's what PawPal's care guides say for Biscuit:\n- Dogs over roughly 7 years (earlier for giant breeds) benefit from shorter, more frequent, low-impact walks rather than one long outing. [1]\n- Adult dogs are usually fed twice a day at consistent times, about 8 to 12 hours apart. [2]\nThe proposed tasks below are ready for your review.",
+  "pet_name": "Biscuit",
+  "tasks": [
+    {
+      "title": "Gentle short walk",
+      "minutes": 15,
+      "priority": "high",
+      "category": "walk",
+      "time": null,
+      "frequency": "daily",
+      "source": "dog_care#senior-dogs"
+    },
+    {
+      "title": "Evening toilet break",
+      "minutes": 10,
+      "priority": "medium",
+      "category": "walk",
+      "time": "21:30",
+      "frequency": "daily",
+      "source": "dog_care#senior-dogs"
+    },
+    {
+      "title": "Dinner",
+      "minutes": 10,
+      "priority": "high",
+      "category": "feeding",
+      "time": "18:30",
+      "frequency": "daily",
+      "source": "dog_care#feeding"
+    },
+    {
+      "title": "Refresh water bowl",
+      "minutes": 5,
+      "priority": "medium",
+      "category": "feeding",
+      "time": null,
+      "frequency": "daily",
+      "source": "dog_care#feeding"
+    },
+    {
+      "title": "Puzzle feeder or sniff game",
+      "minutes": 15,
+      "priority": "medium",
+      "category": "enrichment",
+      "time": null,
+      "frequency": "daily",
+      "source": "dog_care#enrichment-and-training"
+    }
+  ],
+  "plan": [
+    {
+      "time": "07:00-07:15",
+      "pet": "Biscuit",
+      "task": "Gentle short walk",
+      "minutes": 15,
+      "priority": "high",
+      "why": "high priority; placed in earliest free slot"
+    },
+    {
+      "time": "07:15-07:20",
+      "pet": "Biscuit",
+      "task": "Refresh water bowl",
+      "minutes": 5,
+      "priority": "medium",
+      "why": "medium priority; placed in earliest free slot"
+    },
+    {
+      "time": "07:20-07:35",
+      "pet": "Biscuit",
+      "task": "Puzzle feeder or sniff game",
+      "minutes": 15,
+      "priority": "medium",
+      "why": "medium priority; placed in earliest free slot"
+    },
+    {
+      "time": "08:00-08:10",
+      "pet": "Biscuit",
+      "task": "Breakfast",
+      "minutes": 10,
+      "priority": "high",
+      "why": "high priority; fixed at 08:00"
+    },
+    {
+      "time": "18:30-18:40",
+      "pet": "Biscuit",
+      "task": "Dinner",
+      "minutes": 10,
+      "priority": "high",
+      "why": "high priority; fixed at 18:30"
+    },
+    {
+      "time": "21:30-21:40",
+      "pet": "Biscuit",
+      "task": "Evening toilet break",
+      "minutes": 10,
+      "priority": "medium",
+      "why": "medium priority; fixed at 21:30"
+    }
+  ],
+  "conflicts": [],
+  "skipped": [],
+  "warnings": [],
+  "repairs": [
+    "dropped duplicate 'Breakfast'"
+  ],
+  "sources": [
+    {
+      "id": "dog_care#senior-dogs",
+      "title": "Dog Daily Care Guide - Senior dogs",
+      "score": 0.5696
+    },
+    {
+      "id": "dog_care#feeding",
+      "title": "Dog Daily Care Guide - Feeding",
+      "score": 0.4157
+    },
+    {
+      "id": "dog_care#enrichment-and-training",
+      "title": "Dog Daily Care Guide - Enrichment and training",
+      "score": 0.6225
+    },
+    {
+      "id": "scheduling_tips#multiple-pets",
+      "title": "Building a Realistic Pet Care Routine - Multiple pets",
+      "score": 0.1664
+    }
+  ],
+  "confidence": 0.95,
+  "confidence_label": "high",
+  "needs_review": true,
+  "backend": "offline",
+  "style": "pawpal",
+  "message": "Plan a daily routine for Biscuit",
+  "trace": [
+    {
+      "n": 1,
+      "step": "guardrail_input",
+      "detail": "status=ok, flags=[]",
+      "ms": 1.4
+    },
+    {
+      "n": 2,
+      "step": "plan",
+      "detail": "intent=plan, pet=Biscuit, explicit tasks=0",
+      "ms": 2.5,
+      "data": {
+        "intent": "plan",
+        "pet_name": "Biscuit",
+        "species": null,
+        "available_minutes": null,
+        "user_tasks": []
+      }
+    },
+    {
+      "n": 3,
+      "step": "plan",
+      "detail": "broad request decomposed into 3 sub-queries",
+      "ms": 2.7,
+      "data": [
+        "senior dog care",
+        "dog feeding meals water",
+        "dog enrichment training grooming"
+      ]
+    },
+    {
+      "n": 4,
+      "step": "retrieve",
+      "detail": "query='Plan a daily routine for Biscuit dog senior older beagle' -> 4 guide section(s), profile=yes",
+      "ms": 2.8,
+      "data": [
+        {
+          "id": "profile#biscuit",
+          "score": 1.0
+        },
+        {
+          "id": "dog_care#senior-dogs",
+          "score": 0.5696
+        },
+        {
+          "id": "dog_care#feeding",
+          "score": 0.4157
+        },
+        {
+          "id": "dog_care#enrichment-and-training",
+          "score": 0.6225
+        },
+        {
+          "id": "scheduling_tips#multiple-pets",
+          "score": 0.1664
+        }
+      ]
+    },
+    {
+      "n": 5,
+      "step": "propose",
+      "detail": "6 task(s) proposed, model confidence=0.95",
+      "ms": 3.1,
+      "data": {
+        "answer": "Here's what PawPal's care guides say for Biscuit:\n- Dogs over roughly 7 years (earlier for giant breeds) benefit from shorter, more frequent, low-impact walks rather than one long outing. [1]\n- Adult dogs are usually fed twice a day at consistent times, about 8 to 12 hours apart. [2]\nThe proposed tasks below are ready for your review.",
+        "tasks": [
+          {
+            "title": "Gentle short walk",
+            "minutes": 15,
+            "time": null,
+            "priority": "high",
+            "category": "walk",
+            "frequency": "daily",
+            "source": "dog_care#senior-dogs"
+          },
+          {
+            "title": "Evening toilet break",
+            "minutes": 10,
+            "time": "21:30",
+            "priority": "medium",
+            "category": "walk",
+            "frequency": "daily",
+            "source": "dog_care#senior-dogs"
+          },
+          {
+            "title": "Breakfast",
+            "minutes": 10,
+            "time": "08:00",
+            "priority": "high",
+            "category": "feeding",
+            "frequency": "daily",
+            "source": "dog_care#feeding"
+          },
+          {
+            "title": "Dinner",
+            "minutes": 10,
+            "time": "18:30",
+            "priority": "high",
+            "category": "feeding",
+            "frequency": "daily",
+            "source": "dog_care#feeding"
+          },
+          {
+            "title": "Refresh water bowl",
+            "minutes": 5,
+            "time": null,
+            "priority": "medium",
+            "category": "feeding",
+            "frequency": "daily",
+            "source": "dog_care#feeding"
+          },
+          {
+            "title": "Puzzle feeder or sniff game",
+            "minutes": 15,
+            "time": null,
+            "priority": "medium",
+            "category": "enrichment",
+            "frequency": "daily",
+            "source": "dog_care#enrichment-and-training"
+          }
+        ]
+      }
+    },
+    {
+      "n": 6,
+      "step": "act",
+      "detail": "Scheduler.generate_plan() -> 6 slot(s), 0 conflict(s), 0 skipped (budget 120 min)",
+      "ms": 3.3
+    },
+    {
+      "n": 7,
+      "step": "verify",
+      "detail": "5 valid task(s), 1 repair(s), 0 conflict(s), 0 skipped",
+      "ms": 3.4,
+      "data": {
+        "repairs": [
+          "dropped duplicate 'Breakfast'"
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "n": 8,
+      "step": "guardrail_output",
+      "detail": "dose redacted=False, words=59",
+      "ms": 3.8
+    },
+    {
+      "n": 9,
+      "step": "done",
+      "detail": "status=ok, confidence=0.95 (high)",
+      "ms": 3.9
+    }
+  ]
+}
