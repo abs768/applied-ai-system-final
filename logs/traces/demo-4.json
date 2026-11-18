@@ -47,7 +47,7 @@
       "n": 3,
       "step": "done",
       "detail": "status=emergency, confidence=0.00 (low)",
-      "ms": 0.2
+      "ms": 0.1
     }
   ]
 }

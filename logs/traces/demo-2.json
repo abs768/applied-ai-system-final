@@ -149,7 +149,7 @@
       "n": 3,
       "step": "retrieve",
       "detail": "life-stage filter removed ['cat_care#senior-cats']",
-      "ms": 1.0
+      "ms": 1.1
     },
     {
       "n": 4,
@@ -227,7 +227,7 @@
       "n": 7,
       "step": "verify",
       "detail": "3 valid task(s), 0 repair(s), 0 conflict(s), 0 skipped",
-      "ms": 1.4,
+      "ms": 1.5,
       "data": {
         "repairs": [],
         "warnings": []

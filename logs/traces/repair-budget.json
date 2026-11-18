@@ -1,0 +1,195 @@
+{
+  "status": "ok",
+  "answer": "Here's what PawPal's care guides say for Biscuit:\n- Dogs over roughly 7 years (earlier for giant breeds) benefit from shorter, more frequent, low-impact walks rather than one long outing. [1]\n- High-energy and working breeds (border collies, huskies, retrievers) need the upper end; small or brachycephalic breeds (pugs, bulldogs) do better with shorter, cooler walks. [2]\n- Puzzle feeders, sniff walks, and 10-minute training sessions reduce boredom behaviors like chewing and barking. [3]\nThe proposed tasks below are ready for your review.",
+  "pet_name": "Biscuit",
+  "tasks": [
+    {
+      "title": "Walk",
+      "minutes": 20,
+      "priority": "high",
+      "category": "walk",
+      "time": null,
+      "frequency": "daily",
+      "source": "user"
+    }
+  ],
+  "plan": [
+    {
+      "time": "07:00-07:20",
+      "pet": "Biscuit",
+      "task": "Walk",
+      "minutes": 20,
+      "priority": "high",
+      "why": "high priority; placed in earliest free slot"
+    },
+    {
+      "time": "08:00-08:10",
+      "pet": "Biscuit",
+      "task": "Breakfast",
+      "minutes": 10,
+      "priority": "high",
+      "why": "high priority; fixed at 08:00"
+    }
+  ],
+  "conflicts": [],
+  "skipped": [],
+  "warnings": [],
+  "repairs": [
+    "shortened 'Walk' from 30 to 20 min to fit your time budget"
+  ],
+  "sources": [
+    {
+      "id": "dog_care#senior-dogs",
+      "title": "Dog Daily Care Guide - Senior dogs",
+      "score": 0.4405
+    },
+    {
+      "id": "dog_care#exercise-and-walks",
+      "title": "Dog Daily Care Guide - Exercise and walks",
+      "score": 0.3485
+    },
+    {
+      "id": "dog_care#enrichment-and-training",
+      "title": "Dog Daily Care Guide - Enrichment and training",
+      "score": 0.2664
+    },
+    {
+      "id": "dog_care#hot-weather",
+      "title": "Dog Daily Care Guide - Hot weather",
+      "score": 0.125
+    }
+  ],
+  "confidence": 0.97,
+  "confidence_label": "high",
+  "needs_review": true,
+  "backend": "offline",
+  "style": "pawpal",
+  "message": "I only have 30 minutes today, plan Biscuit's walks",
+  "trace": [
+    {
+      "n": 1,
+      "step": "guardrail_input",
+      "detail": "status=ok, flags=[]",
+      "ms": 0.0
+    },
+    {
+      "n": 2,
+      "step": "plan",
+      "detail": "intent=plan, pet=Biscuit, explicit tasks=1",
+      "ms": 0.1,
+      "data": {
+        "intent": "plan",
+        "pet_name": "Biscuit",
+        "species": null,
+        "available_minutes": 30,
+        "user_tasks": [
+          {
+            "title": "Walk",
+            "minutes": 30,
+            "time": null,
+            "priority": "high",
+            "category": "walk",
+            "frequency": "daily",
+            "source": "user"
+          }
+        ]
+      }
+    },
+    {
+      "n": 3,
+      "step": "retrieve",
+      "detail": "life-stage filter removed ['dog_care#puppies']",
+      "ms": 0.2
+    },
+    {
+      "n": 4,
+      "step": "retrieve",
+      "detail": "query='I only have 30 minutes today, plan Biscuit's walks dog senior older beagle' -> 4 guide section(s), profile=yes",
+      "ms": 0.2,
+      "data": [
+        {
+          "id": "profile#biscuit",
+          "score": 1.0
+        },
+        {
+          "id": "dog_care#senior-dogs",
+          "score": 0.4405
+        },
+        {
+          "id": "dog_care#exercise-and-walks",
+          "score": 0.3485
+        },
+        {
+          "id": "dog_care#enrichment-and-training",
+          "score": 0.2664
+        },
+        {
+          "id": "dog_care#hot-weather",
+          "score": 0.125
+        }
+      ]
+    },
+    {
+      "n": 5,
+      "step": "propose",
+      "detail": "1 task(s) proposed, model confidence=0.84",
+      "ms": 0.4,
+      "data": {
+        "answer": "Here's what PawPal's care guides say for Biscuit:\n- Dogs over roughly 7 years (earlier for giant breeds) benefit from shorter, more frequent, low-impact walks rather than one long outing. [1]\n- High-energy and working breeds (border collies, huskies, retrievers) need the upper end; small or brachycephalic breeds (pugs, bulldogs) do better with shorter, cooler walks. [2]\n- Puzzle feeders, sniff walks, and 10-minute training sessions reduce boredom behaviors like chewing and barking. [3]\nThe proposed tasks below are ready for your review.",
+        "tasks": [
+          {
+            "title": "Walk",
+            "minutes": 30,
+            "time": null,
+            "priority": "high",
+            "category": "walk",
+            "frequency": "daily",
+            "source": "user"
+          }
+        ]
+      }
+    },
+    {
+      "n": 6,
+      "step": "act",
+      "detail": "Scheduler.generate_plan() -> 1 slot(s), 0 conflict(s), 1 skipped (budget 30 min)",
+      "ms": 0.5
+    },
+    {
+      "n": 7,
+      "step": "repair",
+      "detail": "attempt 1: shortened 'Walk' from 30 to 20 min to fit your time budget",
+      "ms": 0.5
+    },
+    {
+      "n": 8,
+      "step": "act",
+      "detail": "Scheduler.generate_plan() -> 2 slot(s), 0 conflict(s), 0 skipped (budget 30 min)",
+      "ms": 0.5
+    },
+    {
+      "n": 9,
+      "step": "verify",
+      "detail": "1 valid task(s), 1 repair(s), 0 conflict(s), 0 skipped",
+      "ms": 0.5,
+      "data": {
+        "repairs": [
+          "shortened 'Walk' from 30 to 20 min to fit your time budget"
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "n": 10,
+      "step": "guardrail_output",
+      "detail": "dose redacted=False, words=83",
+      "ms": 1.2
+    },
+    {
+      "n": 11,
+      "step": "done",
+      "detail": "status=ok, confidence=0.97 (high)",
+      "ms": 1.2
+    }
+  ]
+}

@@ -1,0 +1,196 @@
+{
+  "status": "ok",
+  "answer": "I can't recommend a dose or a medication. Doses depend on your pet's weight, health and the exact product, so please ask your veterinarian. I can still schedule the reminder so the dose your vet prescribed is never missed.\nHere's what PawPal's care guides say for Mochi:\n- PawPal+ never recommends a dose, a drug, or a change in dose. [1]\n- Medications should be given at consistent times exactly as the veterinarian prescribed. [2]\n- Flea, tick, and heartworm preventives are usually given monthly. [3]\nThe proposed tasks below are ready for your review.",
+  "pet_name": "Mochi",
+  "tasks": [
+    {
+      "title": "Give pill",
+      "minutes": 5,
+      "priority": "high",
+      "category": "meds",
+      "time": "09:00",
+      "frequency": "daily",
+      "source": "user"
+    }
+  ],
+  "plan": [
+    {
+      "time": "08:00-08:10",
+      "pet": "Biscuit",
+      "task": "Breakfast",
+      "minutes": 10,
+      "priority": "high",
+      "why": "high priority; fixed at 08:00"
+    },
+    {
+      "time": "09:00-09:05",
+      "pet": "Mochi",
+      "task": "Give pill",
+      "minutes": 5,
+      "priority": "high",
+      "why": "high priority; fixed at 09:00"
+    }
+  ],
+  "conflicts": [],
+  "skipped": [],
+  "warnings": [
+    "Dosing question detected: no dose given; owner told to ask a vet."
+  ],
+  "repairs": [
+    "dropped 'Give medication (evening dose)': medication schedules must come from the owner/vet, not the AI"
+  ],
+  "sources": [
+    {
+      "id": "medication_safety#dosing-questions",
+      "title": "Medication Scheduling and Safety - Dosing questions",
+      "score": 0.2996
+    },
+    {
+      "id": "medication_safety#giving-medication-on-time",
+      "title": "Medication Scheduling and Safety - Giving medication on time",
+      "score": 0.2668
+    },
+    {
+      "id": "medication_safety#parasite-prevention",
+      "title": "Medication Scheduling and Safety - Parasite prevention",
+      "score": 0.2219
+    },
+    {
+      "id": "cat_care#grooming",
+      "title": "Cat Daily Care Guide - Grooming",
+      "score": 0.2053
+    }
+  ],
+  "confidence": 0.64,
+  "confidence_label": "medium",
+  "needs_review": true,
+  "backend": "offline",
+  "style": "pawpal",
+  "message": "What dose of Benadryl should Mochi get? Also remind me about her allergy pill at 9am",
+  "trace": [
+    {
+      "n": 1,
+      "step": "guardrail_input",
+      "detail": "status=ok, flags=['dosing_request']",
+      "ms": 1.3
+    },
+    {
+      "n": 2,
+      "step": "plan",
+      "detail": "intent=both, pet=Mochi, explicit tasks=1",
+      "ms": 2.6,
+      "data": {
+        "intent": "both",
+        "pet_name": "Mochi",
+        "species": null,
+        "available_minutes": null,
+        "user_tasks": [
+          {
+            "title": "Give pill",
+            "minutes": 5,
+            "time": "09:00",
+            "priority": "high",
+            "category": "meds",
+            "frequency": "daily",
+            "source": "user"
+          }
+        ]
+      }
+    },
+    {
+      "n": 3,
+      "step": "retrieve",
+      "detail": "life-stage filter removed ['cat_care#senior-cats']",
+      "ms": 2.7
+    },
+    {
+      "n": 4,
+      "step": "retrieve",
+      "detail": "query='What dose of Benadryl should Mochi get? Also remind me about her allergy pill at 9am cat' -> 4 guide section(s), profile=yes",
+      "ms": 2.8,
+      "data": [
+        {
+          "id": "profile#mochi",
+          "score": 1.0
+        },
+        {
+          "id": "medication_safety#dosing-questions",
+          "score": 0.2996
+        },
+        {
+          "id": "medication_safety#giving-medication-on-time",
+          "score": 0.2668
+        },
+        {
+          "id": "medication_safety#parasite-prevention",
+          "score": 0.2219
+        },
+        {
+          "id": "cat_care#grooming",
+          "score": 0.2053
+        }
+      ]
+    },
+    {
+      "n": 5,
+      "step": "propose",
+      "detail": "2 task(s) proposed, model confidence=0.7",
+      "ms": 3.0,
+      "data": {
+        "answer": "Here's what PawPal's care guides say for Mochi:\n- PawPal+ never recommends a dose, a drug, or a change in dose. [1]\n- Medications should be given at consistent times exactly as the veterinarian prescribed. [2]\n- Flea, tick, and heartworm preventives are usually given monthly. [3]\nThe proposed tasks below are ready for your review.",
+        "tasks": [
+          {
+            "title": "Give pill",
+            "minutes": 5,
+            "time": "09:00",
+            "priority": "high",
+            "category": "meds",
+            "frequency": "daily",
+            "source": "user"
+          },
+          {
+            "title": "Give medication (evening dose)",
+            "minutes": 5,
+            "time": "20:00",
+            "priority": "high",
+            "category": "meds",
+            "frequency": "daily",
+            "source": "medication_safety#giving-medication-on-time"
+          }
+        ]
+      }
+    },
+    {
+      "n": 6,
+      "step": "act",
+      "detail": "Scheduler.generate_plan() -> 2 slot(s), 0 conflict(s), 0 skipped (budget 120 min)",
+      "ms": 3.2
+    },
+    {
+      "n": 7,
+      "step": "verify",
+      "detail": "1 valid task(s), 1 repair(s), 0 conflict(s), 0 skipped",
+      "ms": 3.2,
+      "data": {
+        "repairs": [
+          "dropped 'Give medication (evening dose)': medication schedules must come from the owner/vet, not the AI"
+        ],
+        "warnings": [
+          "Dosing question detected: no dose given; owner told to ask a vet."
+        ]
+      }
+    },
+    {
+      "n": 8,
+      "step": "guardrail_output",
+      "detail": "dose redacted=False, words=95",
+      "ms": 3.7
+    },
+    {
+      "n": 9,
+      "step": "done",
+      "detail": "status=ok, confidence=0.64 (medium)",
+      "ms": 3.7
+    }
+  ]
+}

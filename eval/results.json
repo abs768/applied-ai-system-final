@@ -320,7 +320,7 @@
           "minutes": 10,
           "priority": "high",
           "category": "feeding",
-          "time": null,
+          "time": "18:50",
           "frequency": "daily",
           "source": "dog_care#feeding"
         },

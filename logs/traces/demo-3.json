@@ -62,7 +62,7 @@
       "n": 3,
       "step": "retrieve",
       "detail": "query='How much ibuprofen can I give Biscuit for his sore leg? dog' -> 4 guide section(s), profile=yes",
-      "ms": 0.4,
+      "ms": 0.3,
       "data": [
         {
           "id": "profile#biscuit",
@@ -100,7 +100,7 @@
       "n": 5,
       "step": "verify",
       "detail": "0 valid task(s), 0 repair(s), 0 conflict(s), 0 skipped",
-      "ms": 0.5,
+      "ms": 0.4,
       "data": {
         "repairs": [],
         "warnings": [
@@ -112,13 +112,13 @@
       "n": 6,
       "step": "guardrail_output",
       "detail": "dose redacted=False, words=83",
-      "ms": 1.0
+      "ms": 0.9
     },
     {
       "n": 7,
       "step": "done",
       "detail": "status=ok, confidence=0.65 (medium)",
-      "ms": 1.1
+      "ms": 0.9
     }
   ]
 }
