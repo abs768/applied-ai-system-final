@@ -19,7 +19,7 @@ from pathlib import Path
 from pawpal_ai.guardrails import DOSING_MESSAGE, check_input, redact_dosing, validate_task
 from pawpal_ai.llm import BROAD_REQUEST, LLMClient, OfflineClient
 from pawpal_ai.retrieval import KnowledgeBase, MultiSourceRetriever, RetrievedChunk
-from pawpal_system import Owner, Pet, ScheduledTask, Scheduler, Task, to_minutes
+from pawpal_system import Owner, Pet, ScheduledTask, Scheduler, Task, to_hhmm, to_minutes
 
 logger = logging.getLogger("pawpal_ai")
 TRACE_DIR = Path(__file__).resolve().parent.parent / "logs" / "traces"
@@ -325,10 +325,18 @@ class CareAgent:
                 if not candidates:
                     continue
                 loser = min(candidates, key=lambda s: (rank.get(s.task.priority, 0), -to_minutes(s.start_time)))
+                other = second if loser is first else first
                 task = proposed[loser.task.title]
-                fixes.append(f"moved '{task['title']}' off {task['time']} to the next free slot (overlapped "
-                             f"'{(second if loser is first else first).task.title}')")
-                task["time"] = None
+                new_start = to_minutes(other.end_time)
+                if new_start + task["minutes"] <= 24 * 60:
+                    new_time = to_hhmm(new_start)
+                    fixes.append(f"moved '{task['title']}' from {task['time']} to {new_time} "
+                                 f"(right after '{other.task.title}')")
+                    task["time"] = new_time
+                else:
+                    fixes.append(f"made '{task['title']}' flexible (overlapped '{other.task.title}' near midnight)")
+                    task["time"] = None
+                return fixes  # re-plan after each move so later overlaps are judged on the new schedule
         return fixes
 
     def _repair_budget(self, tasks: list[dict], plan: list[ScheduledTask], minutes: int) -> list[str]:

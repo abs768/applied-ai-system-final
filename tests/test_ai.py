@@ -151,9 +151,9 @@ def test_conflict_with_ai_task_is_repaired(owner, kb):
     owner.get_pet("Biscuit").add_task(Task("Vet call", 30, "high", "general", "18:20", due_date=DAY))
     result = make_agent(owner, kb).run("Plan a daily routine for Biscuit")
     assert result.conflicts == []
-    assert any(r.startswith("moved 'Dinner' off 18:30") for r in result.repairs)
+    assert "moved 'Dinner' from 18:30 to 18:50 (right after 'Vet call')" in result.repairs
     dinner = next(s for s in result.plan if s.task.title == "Dinner")
-    assert dinner.start_time != "18:30"  # re-planned into a free slot
+    assert dinner.start_time == "18:50"  # still an evening meal, just after the vet call
 
 
 def test_ai_never_invents_medication_tasks(owner, kb):

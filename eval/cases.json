@@ -32,5 +32,5 @@
   {"id": "empty-input", "request": "   ",
    "expect": {"status": "rejected"}},
   {"id": "conflict-repair", "request": "Plan a daily routine for Biscuit", "setup": "vet_call_1820",
-   "expect": {"status": "ok", "no_conflicts": true, "repair_contains": "moved 'Dinner'"}}
+   "expect": {"status": "ok", "no_conflicts": true, "repair_contains": "moved 'Dinner' from 18:30 to 18:50"}}
 ]
