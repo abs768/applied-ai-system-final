@@ -151,3 +151,38 @@ def test_schedule_without_conflicts_says_so():
 
     assert any("No time conflicts" in str(message.value) for message in at.success)
     assert len(at.warning) == 0
+
+
+def ask_ai(at, text):
+    """Type a request into the AI assistant and submit it."""
+    widget(at, "text_area", "Ask PawPal+").set_value(text)
+    click(at, "Ask the AI")
+
+
+def test_ai_assistant_proposes_and_human_approves_tasks():
+    """Check the AI proposes cited tasks and only adds the ones the owner approves."""
+    at = start_app()
+    add_pet(at, "Biscuit")
+    ask_ai(at, "Plan a daily routine for Biscuit")
+
+    result = at.session_state.ai_result
+    assert result.status == "ok" and result.tasks
+    assert at.session_state.owner.get_pet("Biscuit").tasks == []  # nothing added before approval
+
+    chosen = [task["title"] for task in result.tasks[:2]]
+    widget(at, "multiselect", "Tasks to add").set_value(chosen)
+    click(at, "Approve and add selected tasks")
+
+    assert [task.title for task in at.session_state.owner.get_pet("Biscuit").tasks] == chosen
+    assert any("Added 2 AI-suggested task(s)" in item.value for item in at.success)
+
+
+def test_ai_assistant_shows_emergency_error_without_tasks():
+    """Check an emergency message is shown as an error and nothing is proposed."""
+    at = start_app()
+    add_pet(at, "Biscuit")
+    ask_ai(at, "Biscuit ate grapes and is vomiting")
+
+    assert at.session_state.ai_result.status == "emergency"
+    assert any("veterinarian" in item.value for item in at.error)
+    assert not [b for b in at.button if b.label == "Approve and add selected tasks"]
