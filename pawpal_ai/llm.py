@@ -125,7 +125,9 @@ class OfflineClient:
     def _extract_tasks(self, message: str, pet_names: list[str]) -> list[dict]:
         tasks: list[dict] = []
         verbs = r"(?:walk|feed|brush|play|give|clean|scoop|groom|train|bath|trim|refill)"
-        clauses = re.split(rf"[.;!?\n]|,|\bthen\b|\band\b(?=\s+(?:\w+\s+)?{verbs})", message, flags=re.I)
+        clauses = re.split(
+            rf"[.;!?\n]|,|\bthen\b|\band\b(?=\s+(?:\w+\s+)?{verbs})|\b(?:and|but)\b(?=\s+i\b)", message, flags=re.I
+        )
         for clause in clauses:
             clause_l = clause.lower()
             if not clause_l.strip() or re.search(r"\b(i have|available|free time|only have)\b", clause_l):
@@ -163,7 +165,9 @@ class OfflineClient:
             for index, time in enumerate(times or [None]):
                 suffix = ""
                 if len(times) > 1:
-                    suffix = " (morning)" if index == 0 and int(time[:2]) < 12 else f" ({time})"
+                    hour = int(time[:2])
+                    part = "morning" if hour < 12 else "afternoon" if hour < 17 else "evening"
+                    suffix = f" ({part})" if sum(1 for t in times if (int(t[:2]) < 12) == (hour < 12)) == 1 else f" ({time})"
                 tasks.append(
                     {
                         "title": f"{title}{suffix}",

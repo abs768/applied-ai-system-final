@@ -348,7 +348,8 @@ def apply_tasks(owner: Owner, result: AgentResult, titles: list[str] | None = No
 def save_trace(result: AgentResult, directory: Path = TRACE_DIR, name: str | None = None) -> Path:
     """Save the full reasoning trace as JSON plus a readable Markdown version. Returns the Markdown path."""
     directory.mkdir(parents=True, exist_ok=True)
-    stamp = name or datetime.now().strftime("%Y%m%d-%H%M%S")
+    slug = re.sub(r"[^a-z0-9]+", "-", result.message.lower()).strip("-")[:40] or result.status
+    stamp = name or f"{datetime.now().strftime('%Y%m%d-%H%M%S')}_{slug}"
     data = result.to_dict()
     (directory / f"{stamp}.json").write_text(json.dumps(data, indent=2, default=str), encoding="utf-8")
     md_path = directory / f"{stamp}.md"
