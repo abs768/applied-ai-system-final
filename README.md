@@ -52,6 +52,23 @@ explanations) still work unchanged; the original 38 tests still pass.
 
 ---
 
+## 🖼️ The app
+
+The Streamlit app uses a "morning walk" theme: pine green and dew, with each pet shown as a marigold bone-shaped ID
+tag. Setup (your day, adding pets) lives in the sidebar, and the main page runs top to bottom: **Ask PawPal** →
+**Care tasks** → **Today's plan** (a timeline).
+
+![Ask PawPal: cited answer, confidence, suggested tasks with sources, approve or discard](assets/ui_ask_pawpal.png)
+
+<details><summary>Full page and mobile views</summary>
+
+![Full page](assets/ui_full_page.png)
+![Mobile](assets/ui_mobile.png)
+
+</details>
+
+---
+
 ## 🏗️ Architecture overview
 
 Diagram source: [`diagrams/architecture.mmd`](diagrams/architecture.mmd) (Mermaid) · rendered:
@@ -85,7 +102,9 @@ pawpal_ai/
   agent.py            CareAgent loop, repairs, confidence, apply_tasks, trace saving
 knowledge/            6 Markdown care guides (add your own)
 assistant.py          CLI
-app.py                Streamlit app (original UI + new AI Care Assistant section)
+app.py                Streamlit app (original features + new "Ask PawPal" AI section)
+pawpal_ui.py          theme CSS and HTML components (pet ID tags, answer card, schedule timeline)
+static/fonts/         bundled fonts (works offline); .streamlit/config.toml sets the theme
 eval/                 cases.json, run_eval.py, saved results + comparison
 tests/                test_pawpal.py, test_app.py (original + AI UI), test_ai.py
 logs/traces/          committed sample reasoning traces
@@ -124,7 +143,7 @@ python assistant.py "Plan a daily routine for Biscuit"        # one request (dem
 python assistant.py "Mochi needs insulin at 8am and 8pm" --approve   # approve + show final schedule
 python assistant.py --demo --save-trace                         # 5 scripted requests, traces saved
 python assistant.py "How often should I brush a cat?" --pet Luna:cat:3   # your own pets
-streamlit run app.py                                            # web app → "🤖 AI Care Assistant" section
+streamlit run app.py                                            # web app → "Ask PawPal" section
 python -m pytest                                                # 77 tests
 python -m eval.run_eval                                         # evaluation harness (16 cases)
 python -m eval.run_eval --compare                               # RAG on/off + style comparison
