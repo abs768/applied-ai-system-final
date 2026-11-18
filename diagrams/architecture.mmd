@@ -1,0 +1,47 @@
+flowchart TD
+    %% PawPal+ AI Care Assistant - system architecture (matches pawpal_ai/agent.py CareAgent.run)
+
+    U["👤 Pet owner<br/>plain-English request"] --> UI["Interfaces<br/>app.py (Streamlit) · assistant.py (CLI)"]
+    UI --> G1{"guardrails.check_input<br/>empty/too long · prompt injection<br/>emergency · off-topic · dosing flag"}
+
+    G1 -- "emergency" --> EM["🚨 Stop planning<br/>vet / poison-hotline message<br/>+ cited emergency guide"]
+    G1 -- "blocked / off_topic / rejected" --> RJ["Polite refusal"]
+    G1 -- "ok" --> P1["1 · PLAN<br/>LLM.interpret → intent, pet,<br/>explicit tasks, time budget"]
+
+    P1 --> CL{"Pet known?"}
+    CL -- "no" --> ASK["Ask: which pet?"]
+    CL -- "yes" --> DEC["Planning step: broad 'routine' requests<br/>split into sub-queries<br/>(feeding · exercise · hygiene)"]
+
+    DEC --> R["2 · RETRIEVE (RAG)<br/>MultiSourceRetriever"]
+    KB[("knowledge/*.md<br/>care guides, chunked by ## section<br/>TF-IDF + species boost")] --> R
+    PP[("Pet profile source<br/>pets, ages, existing tasks")] --> R
+    R --> LS["Life-stage filter<br/>(no senior advice for young pets)"]
+
+    LS --> P2["3 · PROPOSE<br/>LLM.propose (Gemini or offline)<br/>few-shot PawPal style · answer + tasks citing sources"]
+
+    P2 --> V["4 · VERIFY<br/>validate_task schema · grounding check<br/>no AI-invented meds · de-duplicate"]
+    V --> ACT["5 · ACT (tool call)<br/>Scheduler.generate_plan() +<br/>detect_conflicts() on a sandbox copy"]
+    ACT --> FIX{"Conflict or owner task<br/>over budget?"}
+    FIX -- "yes (max 2 repairs)" --> REP["6 · REPAIR<br/>move lower-priority AI task /<br/>shorten owner task to fit"]
+    REP --> ACT
+    FIX -- "no" --> G2["7 · OUTPUT GUARDRAILS<br/>dose redaction · citations · word limit<br/>confidence score (high / medium / low)"]
+
+    G2 --> OUT["AgentResult<br/>answer · sources · proposed tasks ·<br/>schedule preview · warnings · trace"]
+    OUT --> TR[("logs/traces/*.json + *.md<br/>logs/pawpal.log")]
+    OUT --> H{"🧑 Human review<br/>approve / pick / discard"}
+    H -- "approve" --> AP["apply_tasks → real Owner/Pet<br/>(pawpal_system.py)"]
+    AP --> SCH["Final daily schedule<br/>Scheduler.generate_plan + explain_plan"]
+    H -- "discard" --> DS["Nothing changes"]
+
+    subgraph LLM["Model backends (pawpal_ai/llm.py)"]
+        GEM["GeminiClient<br/>retry once → fall back"]
+        OFF["OfflineClient<br/>deterministic rules"]
+        GEM -- "on failure" --> OFF
+    end
+    LLM -. "used by" .-> P2
+
+    subgraph TEST["Reliability testing (offline, reproducible)"]
+        T1["tests/ - 77 pytest tests<br/>retrieval · guardrails · agent repair loop ·<br/>Gemini fallback · Streamlit UI"]
+        T2["eval/run_eval.py - 16 predefined cases<br/>pass/fail summary + RAG / style comparison"]
+    end
+    SCH --> TEST
