@@ -175,8 +175,8 @@ class CareAgent:
                 # Planning step: a broad "routine" request is decomposed into one sub-query per care facet so the
                 # plan covers feeding, exercise and hygiene instead of only the single best-matching section.
                 facets = ROUTINE_FACETS.get(pet.species, ROUTINE_FACETS["other"])
-                if age_terms(pet):
-                    facets = [f"senior {pet.species} care"] + facets
+                if age_terms(pet):  # seniors: senior guidance replaces the generic exercise facet
+                    facets = [f"senior {pet.species} care"] + [f for f in facets if "exercise" not in f]
                 self._log("plan", f"broad request decomposed into {len(facets)} sub-queries", facets)
                 facet_hits = [h for facet in facets for h in self.kb.search(facet, species=species, k=2)[:1]]
                 seen, merged = set(), []

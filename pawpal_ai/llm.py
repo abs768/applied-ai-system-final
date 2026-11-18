@@ -243,7 +243,7 @@ class OfflineClient:
             bullets.append(f"- {best.strip()} [{number}]")
         intro = f"Here's what PawPal's care guides say for {pet}:"
         closing = (
-            f"I proposed {n_tasks} task(s) below; review them before adding."
+            "The proposed tasks below are ready for your review."
             if n_tasks else "Ask me to plan it if you'd like tasks added."
         )
         return "\n".join([intro, *bullets[:3], closing])
