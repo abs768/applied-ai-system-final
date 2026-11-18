@@ -1,6 +1,15 @@
 import streamlit as st
 
+from pawpal_ai.agent import CareAgent, apply_tasks
+from pawpal_ai.llm import make_client
+from pawpal_ai.retrieval import KnowledgeBase
 from pawpal_system import Owner, Pet, Scheduler, Task, to_minutes
+
+
+@st.cache_resource
+def load_knowledge_base() -> KnowledgeBase:
+    """Index the care guides once per server process."""
+    return KnowledgeBase()
 
 
 def valid_time(text: str) -> bool:
@@ -203,6 +212,85 @@ else:
             st.rerun()
     else:
         st.info("No pending tasks to mark complete.")
+
+st.header("🤖 AI Care Assistant")
+st.caption(
+    "Ask in plain English. PawPal+ looks up its care guides (RAG), proposes tasks with sources, checks them with the "
+    "scheduler, and waits for your approval before changing anything."
+)
+if "ai_flash" in st.session_state:
+    st.success(st.session_state.pop("ai_flash"))
+with st.form("ai_form"):
+    ai_request = st.text_area(
+        "Ask PawPal+",
+        placeholder="e.g. Plan a daily routine for Biscuit, or: Mochi needs insulin at 7:30am and 7:30pm",
+    )
+    ask_ai = st.form_submit_button("Ask the AI")
+
+if ask_ai:
+    agent = CareAgent(owner, llm=make_client(), knowledge_base=load_knowledge_base())
+    st.session_state.ai_result = agent.run(ai_request)
+
+ai_result = st.session_state.get("ai_result")
+if ai_result is not None:
+    if ai_result.status == "emergency":
+        st.error(f"🚨 {ai_result.answer}")
+    elif ai_result.status in {"blocked", "off_topic", "rejected"}:
+        st.warning(ai_result.answer)
+    elif ai_result.status == "clarify":
+        st.info(ai_result.answer)
+    else:
+        badge = {"high": "🟢", "medium": "🟡", "low": "🔴"}[ai_result.confidence_label]
+        st.markdown(
+            f"{badge} **Confidence: {ai_result.confidence:.2f} ({ai_result.confidence_label})** · "
+            f"backend: `{ai_result.backend}`"
+        )
+        st.markdown(ai_result.answer.replace("\n", "  \n"))
+        for warning in ai_result.warnings:
+            st.warning(warning)
+        if ai_result.sources:
+            with st.expander("Sources used"):
+                for number, source in enumerate(ai_result.sources, start=1):
+                    st.markdown(f"[{number}] `{source['id']}` — {source['title']} (score {source['score']:.2f})")
+        if ai_result.tasks:
+            st.markdown(f"**Proposed tasks for {ai_result.pet_name}** (nothing is added until you approve):")
+            st.table(
+                [
+                    {
+                        "Task": task["title"],
+                        "Min": task["minutes"],
+                        "Priority": task["priority"],
+                        "Time": task["time"] or "flexible",
+                        "Repeats": task["frequency"],
+                        "Source": task["source"],
+                    }
+                    for task in ai_result.tasks
+                ]
+            )
+            if ai_result.repairs:
+                with st.expander(f"Self-checks: {len(ai_result.repairs)} fix(es) made by the agent"):
+                    for repair in ai_result.repairs:
+                        st.markdown(f"- {repair}")
+            chosen = st.multiselect(
+                "Tasks to add",
+                [task["title"] for task in ai_result.tasks],
+                default=[task["title"] for task in ai_result.tasks],
+            )
+            approve_col, discard_col = st.columns(2)
+            with approve_col:
+                approve = st.button("Approve and add selected tasks", type="primary")
+            with discard_col:
+                discard = st.button("Discard suggestions")
+            if approve:
+                added = apply_tasks(owner, ai_result, titles=chosen)
+                st.session_state.ai_flash = f"Added {added} AI-suggested task(s) to {ai_result.pet_name}."
+                del st.session_state["ai_result"]
+                st.rerun()
+            if discard:
+                del st.session_state["ai_result"]
+                st.rerun()
+    with st.expander("Agent reasoning trace"):
+        st.table([{"#": e["n"], "Step": e["step"], "What happened": e["detail"]} for e in ai_result.trace])
 
 st.header("📅 Today's schedule")
 if st.button("Generate schedule", type="primary"):
